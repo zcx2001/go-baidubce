@@ -26,11 +26,11 @@ func NewBceClient(accessKey, secretKey string) *BceClient {
 	}
 }
 
-func (c BceClient) GetAccessKey() string {
+func (c *BceClient) GetAccessKey() string {
 	return c.accessKey
 }
 
-func (c BceClient) GetSecretKey() string {
+func (c *BceClient) GetSecretKey() string {
 	return c.secretKey
 }
 
@@ -38,7 +38,7 @@ func (c *BceClient) SetExpirationPeriodInSeconds(s uint) {
 	c.expirationPeriodInSeconds = s
 }
 
-func (c BceClient) GetExpirationPeriodInSeconds() uint {
+func (c *BceClient) GetExpirationPeriodInSeconds() uint {
 	return c.expirationPeriodInSeconds
 }
 
