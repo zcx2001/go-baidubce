@@ -2,7 +2,7 @@ package bceClient
 
 import (
 	"fmt"
-	uuid "github.com/satori/go.uuid"
+	"github.com/google/uuid"
 	"net/http"
 	"net/url"
 	"sort"
@@ -48,7 +48,7 @@ func (c *BceClient) SetHttpClient(httpClient *http.Client) {
 
 func (c *BceClient) Do(req *http.Request) (*http.Response, error) {
 	timestamp := time.Now().UTC().Format("2006-01-02T15:04:05Z")
-	requestId := uuid.NewV1().String()
+	requestId := uuid.New().String()
 
 	//计算authStringPrefix
 	authStringPrefix := fmt.Sprintf("bce-auth-v1/%s/%s/%d",
