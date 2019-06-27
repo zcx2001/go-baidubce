@@ -2,6 +2,7 @@ package duMap
 
 import (
 	"fmt"
+	jsoniter "github.com/json-iterator/go"
 	"net/url"
 )
 
@@ -19,25 +20,6 @@ func (c *DuMapClient) GeoCoderByAddress(address, city string, rCoordtype CoordTy
 	params.Add("ret_coordtype", string(rCoordtype))
 	params.Add("output", "json")
 
-	//req, err := http.NewRequest("GET",
-	//	fmt.Sprintf("%s%s?%s", baseUrl, "/geocoder/v2/", params.Encode()), nil)
-	//if err != nil {
-	//	return
-	//}
-	//
-	//req.Header.Add("x-app-id", c.appId)
-	//
-	//resp, err := c.bceClient.Do(req)
-	//if err != nil {
-	//	return
-	//}
-	//defer resp.Body.Close()
-	//
-	//body, err := ioutil.ReadAll(resp.Body)
-	//if err != nil {
-	//	return
-	//}
-
 	body, _ := c.do("GET",
 		fmt.Sprintf("%s%s?%s", baseUrl, "/geocoder/v2/", params.Encode()), nil)
 
@@ -45,34 +27,31 @@ func (c *DuMapClient) GeoCoderByAddress(address, city string, rCoordtype CoordTy
 }
 
 // 逆向地理编码
-func (c *DuMapClient) GeoCoderByLocation(coord Coord, coordtype, rCoordtype CoordType) {
+func (c *DuMapClient) GeoCoderByLocation(coord Coord, coordtype, rCoordtype CoordType) (country, province, city, address string, err error) {
 	params := &url.Values{}
 	params.Add("location", coord.LatLng())
 	params.Add("coordtype", string(coordtype))
 	params.Add("ret_coordtype", string(rCoordtype))
 	params.Add("output", "json")
 
-	//req, err := http.NewRequest("GET",
-	//	fmt.Sprintf("%s%s?%s", baseUrl, "/geocoder/v2/", params.Encode()), nil)
-	//if err != nil {
-	//	return
-	//}
-	//
-	//req.Header.Add("x-app-id", c.appId)
-	//
-	//resp, err := c.bceClient.Do(req)
-	//if err != nil {
-	//	return
-	//}
-	//defer resp.Body.Close()
-	//
-	//body, err := ioutil.ReadAll(resp.Body)
-	//if err != nil {
-	//	return
-	//}
-
-	body, _ := c.do("GET",
+	body, err := c.do("GET",
 		fmt.Sprintf("%s%s?%s", baseUrl, "/geocoder/v2/", params.Encode()), nil)
+	if err != nil {
+		return
+	}
 
 	fmt.Println(string(body))
+
+	result := jsoniter.Get(body)
+
+	if result.Get("status").ToInt() == 0 {
+		country = result.Get("result", "addressComponent", "country").ToString()
+		province = result.Get("result", "addressComponent", "province").ToString()
+		city = result.Get("result", "addressComponent", "city").ToString()
+		address = result.Get("result", "formatted_address").ToString()
+	} else {
+		err = fmt.Errorf("%d - %s", result.Get("status").ToInt(), result.Get("message").ToString())
+	}
+
+	return
 }
