@@ -40,7 +40,7 @@ func (c *DuMapClient) GeoCoderByLocation(coord Coord, coordtype, rCoordtype Coor
 		return
 	}
 
-	fmt.Println(string(body))
+	//fmt.Println(string(body))
 
 	result := jsoniter.Get(body)
 
